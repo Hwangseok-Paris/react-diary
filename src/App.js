@@ -59,9 +59,11 @@ const reducer = (state, action) => {
     case "REMOVE":
       newState = state.filter((it) => it.id !== action.targetId);
       break;
-    case "EDIT":
-      newState = state.map((it) => (it.id === action.data.id ? { ...action.data } : it));
+    case "EDIT": {
+      console.log("data: ", action.data);
+      newState = state.map((it) => (it.id === action.data.id ? action.data : it));
       break;
+    }
     default:
       return state;
   }
@@ -75,7 +77,7 @@ function App() {
   // const [data, dispatch] = useReducer(reducer, []);
   const [data, dispatch] = useReducer(reducer, dummyData);
 
-  const dataId = useRef(0);
+  const dataId = useRef(6);
   // CREATE
   const onCreate = (date, content, emotion) => {
     dispatch({
@@ -103,7 +105,7 @@ function App() {
         id: targetId,
         content,
         emotion,
-        data: new Date(date).getTime(),
+        date: new Date(date).getTime(),
       },
     });
   };
