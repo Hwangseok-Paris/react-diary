@@ -1,42 +1,36 @@
-import React, { useContext } from "react";
-import { useSearchParams, useNavigate, useParams } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import {useNavigate, useParams } from "react-router-dom";
 import { DiaryStateContext } from "../App";
 import DiaryEditor from "../components/DiaryEditor";
 
-function Edit(props) {
-  const { targetId } = useParams();
-  console.log(targetId);
+function Edit() {
   const navigate = useNavigate();
-  const [searchParms, setSearchParams] = useSearchParams();
+  const { id } = useParams();
+  const diaryList = useContext(DiaryStateContext);
 
-  const data = useContext(DiaryStateContext);
-  const targetData = data.filter((it) => it.id === targetId);
-  console.log("변경할 데이터: ", targetData);
-  console.log("변경할 데이터 ID: ", targetId);
+  const [originData, setOriginData] = useState();
 
-  // const id = searchParms.get("id");
-  const mode = searchParms.get("mode");
+  
+  useEffect(() => {
+    if (diaryList.length >= 1) {
+      console.log(diaryList.length);
+      const targetDiary = diaryList.find((it) => parseInt(it.id) === parseInt(id));
+      console.log(targetDiary);
+   
 
-  // console.log(id, mode);
+      if (targetDiary) {
+        setOriginData(targetDiary);
+      } else {
+        navigate("/", { replace: true })
+      }
+       };
+  }, [diaryList, id])
+
+
 
   return (
     <div>
-      <DiaryEditor data={targetData} />
-      {/* <h1>Edit</h1>
-      <p>이곳은 일기 수정 페이지입니다.</p>
-      <button onClick={() => setSearchParams({ who: "paris" })}>QS 변경</button>
-      <button
-        onClick={() => {
-          navigate("/");
-        }}>
-        Home
-      </button>
-      <button
-        onClick={() => {
-          navigate(-1);
-        }}>
-        뒤로 가기
-      </button> */}
+      {originData && <DiaryEditor isEdit={true} originData={originData} />}
     </div>
   );
 }
