@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useContext, useReducer, useRef } from "react";
+import React, { useContext, useEffect, useReducer, useRef } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Edit from "./pages/Edit";
@@ -9,39 +9,6 @@ import Diary from "./pages/Diary";
 // COMPONENTS
 import MyButton from "./components/MyButton";
 import MyHeader from "./components/MyHeader";
-
-const dummyData = [
-  {
-    id: 1,
-    emotion: 1,
-    content: "오늘의 일기 1번",
-    date: 1688032431005,
-  },
-  {
-    id: 2,
-    emotion: 2,
-    content: "오늘의 일기 2번",
-    date: 1688032431015,
-  },
-  {
-    id: 3,
-    emotion: 3,
-    content: "오늘의 일기 3번",
-    date: 1688032431025,
-  },
-  {
-    id: 4,
-    emotion: 4,
-    content: "오늘의 일기 4번",
-    date: 1688032431035,
-  },
-  {
-    id: 5,
-    emotion: 5,
-    content: "오늘의 일기 5번",
-    date: 1688032431045,
-  },
-];
 
 const reducer = (state, action) => {
   let newState = [];
@@ -60,13 +27,13 @@ const reducer = (state, action) => {
       newState = state.filter((it) => it.id !== action.targetId);
       break;
     case "EDIT": {
-      console.log("data: ", action.data);
       newState = state.map((it) => (it.id === action.data.id ? action.data : it));
       break;
     }
     default:
       return state;
   }
+  localStorage.setItem("diary", JSON.stringify(newState));
   return newState;
 };
 
@@ -75,9 +42,20 @@ export const DiaryDispatchContext = React.createContext();
 
 function App() {
   // const [data, dispatch] = useReducer(reducer, []);
-  const [data, dispatch] = useReducer(reducer, dummyData);
+  const dataId = useRef(0);
+  useEffect(() => {
+    const localData = localStorage.getItem("diary");
+    if (localData) {
+      const diaryList = JSON.parse(localData).sort((a, b) => parseInt(b.id) - parseInt(a.id));
+      if (diaryList.length >= 1) {
+        dataId.current = parseInt(diaryList[0].id) + 1;
+        dispatch({ type: "INIT", data: diaryList });
+      }
+    }
+  }, []);
 
-  const dataId = useRef(6);
+  const [data, dispatch] = useReducer(reducer, []);
+
   // CREATE
   const onCreate = (date, content, emotion) => {
     dispatch({
